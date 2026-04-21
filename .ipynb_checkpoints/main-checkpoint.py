@@ -37,7 +37,10 @@ def main():
     dt = config["dt"]                # timestep size
     t_end = config["t_end"]          # total simulation time
     output_interval = config["output_interval"]  # how often to print/save output
-
+    theta = config["theta"]              # Barnes-Hut opening angle
+    force_method = config["force_method"]  # "direct" or "barnes_hut"
+    
+    
     # Print a short summary so we can confirm the code read the input correctly
     print("Simulation parameters:")
     print(f"N = {N}")
@@ -107,8 +110,18 @@ def main():
     # --------------------------------------------------
     while t < t_end:
         # Advance the system by one timestep using leapfrog
-        positions, velocities = leapfrog_step(positions, velocities, masses, dt, G, epsilon)
-
+        positions, velocities = leapfrog_step(
+            positions,
+            velocities,
+            masses,
+            dt,
+            G,
+            epsilon,
+            method=force_method,
+            theta=theta,
+            box_size=box_size
+        )
+        
         # Compute diagnostic quantities
         K = kinetic_energy(velocities, masses)
         U = potential_energy(positions, masses, G, epsilon)
