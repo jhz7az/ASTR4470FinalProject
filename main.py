@@ -1,5 +1,6 @@
 import json
 import numpy as np
+from forces import compute_direct_accelerations
 
 
 def load_config(filename):
@@ -96,7 +97,7 @@ def main():
     while t < t_end:
         # Placeholder acceleration array
         # This has the same shape as positions: one ax, ay pair per particle
-        accelerations = np.zeros_like(positions)
+        accelerations = compute_direct_accelerations(positions, masses, G, epsilon)
 
         # Temporary simple update step
         # This is NOT the final physics integrator.
