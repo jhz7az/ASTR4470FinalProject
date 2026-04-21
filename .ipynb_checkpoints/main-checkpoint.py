@@ -2,6 +2,7 @@ import json
 import numpy as np
 from forces import compute_direct_accelerations
 from integrator import leapfrog_step
+from diagnostics import kinetic_energy, potential_energy, total_energy
 
 
 def load_config(filename):
@@ -100,9 +101,14 @@ def main():
         # This has the same shape as positions: one ax, ay pair per particle
         positions, velocities = leapfrog_step(positions, velocities, masses, dt, G, epsilon)
 
+         # Compute diagnostic quantities
+        K = kinetic_energy(velocities, masses)
+        U = potential_energy(positions, masses, G, epsilon)
+        E = total_energy(positions, velocities, masses, G, epsilon)
+
         # Print progress every few steps
         if step % output_interval == 0:
-            print(f"Step {step}, time = {t:.3f}")
+            print(f"Step {step}, time = {t:.3f}, K = {K:.4f}, U = {U:.4f}, E = {E:.4f}")
 
         # Move to the next timestep
         t += dt
