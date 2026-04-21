@@ -1,0 +1,15 @@
+{
+  "N": 100,
+  "G": 1.0,
+  "epsilon": 0.05,
+  "theta": 0.5,
+  "dt": 0.01,
+  "t_end": 1.0,
+  "output_interval": 10,
+  "initial_condition": "random",
+  "mass_mode": "equal",
+  "mass_value": 1.0,
+  "box_size": 5.0,
+  "random_seed": 42,
+  "force_method": "direct"
+}
