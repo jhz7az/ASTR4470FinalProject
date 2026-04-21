@@ -1,8 +1,8 @@
 import json
 import numpy as np
-from forces import compute_direct_accelerations
 from integrator import leapfrog_step
 from diagnostics import kinetic_energy, potential_energy, total_energy
+from io_utils import make_output_folder, save_snapshot, save_energy_history
 
 
 def load_config(filename):
@@ -36,7 +36,7 @@ def main():
     epsilon = config["epsilon"]      # softening parameter
     dt = config["dt"]                # timestep size
     t_end = config["t_end"]          # total simulation time
-    output_interval = config["output_interval"]  # how often to print progress
+    output_interval = config["output_interval"]  # how often to print/save output
 
     # Print a short summary so we can confirm the code read the input correctly
     print("Simulation parameters:")
@@ -83,7 +83,19 @@ def main():
     print()
 
     # --------------------------------------------------
-    # 6. Set up the time loop
+    # 6. Set up output folder and diagnostic storage
+    # --------------------------------------------------
+    # Create an output folder if it does not already exist
+    make_output_folder("outputs")
+
+    # These lists will store the energy history over the run
+    times = []
+    kinetic_list = []
+    potential_list = []
+    total_list = []
+
+    # --------------------------------------------------
+    # 7. Set up the time loop
     # --------------------------------------------------
     # t keeps track of the current simulation time
     # step keeps track of the number of timesteps completed
@@ -91,31 +103,47 @@ def main():
     step = 0
 
     # --------------------------------------------------
-    # 7. Main simulation loop
+    # 8. Main simulation loop
     # --------------------------------------------------
-    # Right now this is just a skeleton loop.
-    # We are not computing real gravity yet.
-    # For now, accelerations are all set to zero.
     while t < t_end:
-        # Placeholder acceleration array
-        # This has the same shape as positions: one ax, ay pair per particle
+        # Advance the system by one timestep using leapfrog
         positions, velocities = leapfrog_step(positions, velocities, masses, dt, G, epsilon)
 
-         # Compute diagnostic quantities
+        # Compute diagnostic quantities
         K = kinetic_energy(velocities, masses)
         U = potential_energy(positions, masses, G, epsilon)
         E = total_energy(positions, velocities, masses, G, epsilon)
 
-        # Print progress every few steps
+        # Store diagnostic quantities for later output
+        times.append(t)
+        kinetic_list.append(K)
+        potential_list.append(U)
+        total_list.append(E)
+
+        # Print progress and save a snapshot every few steps
         if step % output_interval == 0:
             print(f"Step {step}, time = {t:.3f}, K = {K:.4f}, U = {U:.4f}, E = {E:.4f}")
+
+            snapshot_name = f"outputs/snapshot_{step:05d}.txt"
+            save_snapshot(snapshot_name, positions, velocities, masses, t)
 
         # Move to the next timestep
         t += dt
         step += 1
 
     # --------------------------------------------------
-    # 8. End of simulation
+    # 9. Save the full energy history after the run ends
+    # --------------------------------------------------
+    save_energy_history(
+        "outputs/energy_history.txt",
+        times,
+        kinetic_list,
+        potential_list,
+        total_list
+    )
+
+    # --------------------------------------------------
+    # 10. End of simulation
     # --------------------------------------------------
     print()
     print("Simulation finished.")
