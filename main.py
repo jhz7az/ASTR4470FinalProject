@@ -1,6 +1,7 @@
 import json
 import numpy as np
 from forces import compute_direct_accelerations
+from integrator import leapfrog_step
 
 
 def load_config(filename):
@@ -97,13 +98,7 @@ def main():
     while t < t_end:
         # Placeholder acceleration array
         # This has the same shape as positions: one ax, ay pair per particle
-        accelerations = compute_direct_accelerations(positions, masses, G, epsilon)
-
-        # Temporary simple update step
-        # This is NOT the final physics integrator.
-        # We are only using it for structure right now.
-        velocities += accelerations * dt
-        positions += velocities * dt
+        positions, velocities = leapfrog_step(positions, velocities, masses, dt, G, epsilon)
 
         # Print progress every few steps
         if step % output_interval == 0:
