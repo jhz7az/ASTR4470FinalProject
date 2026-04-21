@@ -30,16 +30,13 @@ def plot_energy_history(input_file="outputs/energy_history.txt",
         Name of the figure file to save.
     """
 
-    # Load the columns from the text file
     data = np.loadtxt(input_file)
 
-    # Columns are: time, kinetic, potential, total
     times = data[:, 0]
     kinetic = data[:, 1]
     potential = data[:, 2]
     total = data[:, 3]
 
-    # Make the plot
     plt.figure(figsize=(8, 6))
     plt.plot(times, kinetic, label="Kinetic Energy")
     plt.plot(times, potential, label="Potential Energy")
@@ -52,7 +49,6 @@ def plot_energy_history(input_file="outputs/energy_history.txt",
     plt.grid(True)
     plt.tight_layout()
 
-    # Save the figure
     plt.savefig(output_file, dpi=200)
     plt.close()
 
@@ -71,14 +67,11 @@ def plot_snapshot(snapshot_file="outputs/snapshot_00000.txt",
         Name of the figure file to save.
     """
 
-    # Load the snapshot data
-    # Columns are: mass, x, y, vx, vy
     data = np.loadtxt(snapshot_file)
 
     x = data[:, 1]
     y = data[:, 2]
 
-    # Make the scatter plot
     plt.figure(figsize=(6, 6))
     plt.scatter(x, y, s=20)
     plt.xlabel("x")
@@ -88,7 +81,41 @@ def plot_snapshot(snapshot_file="outputs/snapshot_00000.txt",
     plt.grid(True)
     plt.tight_layout()
 
-    # Save the figure
+    plt.savefig(output_file, dpi=200)
+    plt.close()
+
+
+def plot_runtime_scaling(input_file="outputs/runtime_scaling.txt",
+                         output_file="figures/runtime_scaling.png"):
+    """
+    Read the saved runtime scaling file and make a plot of
+    runtime versus particle number for direct and Barnes-Hut methods.
+
+    Parameters
+    ----------
+    input_file : str
+        File containing particle count and runtime data.
+    output_file : str
+        Name of the figure file to save.
+    """
+
+    data = np.loadtxt(input_file)
+
+    particle_counts = data[:, 0]
+    direct_times = data[:, 1]
+    barnes_hut_times = data[:, 2]
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(particle_counts, direct_times, marker="o", label="Direct Summation")
+    plt.plot(particle_counts, barnes_hut_times, marker="o", label="Barnes-Hut")
+
+    plt.xlabel("Number of Particles")
+    plt.ylabel("Runtime (s)")
+    plt.title("Runtime Scaling Comparison")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
     plt.savefig(output_file, dpi=200)
     plt.close()
 
@@ -100,11 +127,14 @@ def main():
 
     make_figure_folder("figures")
 
-    # Plot energy history from the full run
+    # Plot energy history
     plot_energy_history()
 
-    # Plot the first saved snapshot
+    # Plot the first saved particle snapshot
     plot_snapshot()
+
+    # Plot runtime scaling results
+    plot_runtime_scaling()
 
     print("Plots saved in the figures folder.")
 
